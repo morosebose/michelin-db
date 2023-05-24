@@ -25,9 +25,11 @@ class Restaurants():
         - ROOT_URL, root website that has subpages with restaurant data
         - FIRST, the first subpage to crawl for this data
     '''
+    # TODO: Get the city part of the FIRST as an argument rather than hardcoding
+    # TODO: Rewrite without OOP, use functions rather than methods
     
     ROOT_URL = 'https://guide.michelin.com'
-    FIRST = '/us/en/california/san-jose/restaurants'
+    FIRST = '/us/en/california/cupertino/restaurants'
     
     def __init__(self) :
         '''Crawl the webpages and create the restaurants dictionary'''
