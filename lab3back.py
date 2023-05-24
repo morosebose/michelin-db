@@ -1,7 +1,7 @@
 '''
 CIS 41B Spring 2023
 Surajit A Bose
-Lab 3 back.py
+Lab 3 back end
 '''
 
 import requests
@@ -27,7 +27,7 @@ class Restaurants():
     '''
     
     ROOT_URL = 'https://guide.michelin.com'
-    FIRST = '/us/en/california/cupertino/restaurants'
+    FIRST = '/us/en/california/san-jose/restaurants'
     
     def __init__(self) :
         '''Crawl the webpages and create the restaurants dictionary'''
@@ -88,7 +88,7 @@ class RestaurantsDB() :
     The database has four tables:
         - Cities, for the cities where the restaurants are located
         - Costs, from $ to $$$$ for price range of a given restaurant
-        - Cuisine, whether Ethiopian, Mexican, Indian, etc
+        - Cuisines, whether Ethiopian, Mexican, Indian, etc
         - Restaurants, all the restaurants with their name, url, address, etc
         
     RestaurantsDB has one class attribute, DEFAULT for the JSON file 
@@ -116,9 +116,9 @@ class RestaurantsDB() :
             id INTEGER NOT NULL PRIMARY KEY ON CONFLICT IGNORE,
             cost TEXT)''')
         
-        # Create Cuisine table
-        cur.execute('DROP TABLE IF EXISTS Cuisine')
-        cur.execute('''CREATE TABLE Cuisine(
+        # Create Cuisines table
+        cur.execute('DROP TABLE IF EXISTS Cuisines')
+        cur.execute('''CREATE TABLE Cuisines(
             id INTEGER NOT NULL PRIMARY KEY UNIQUE,
             cuisine TEXT UNIQUE ON CONFLICT IGNORE)''')
         
@@ -150,8 +150,8 @@ class RestaurantsDB() :
                 costs_id = cur.fetchone()[0]
 
                 # Update Cuisine table
-                cur.execute('INSERT INTO Cuisine (cuisine) VALUES (?)', (val['Cuisine'],))
-                cur.execute('SELECT id FROM Cuisine WHERE cuisine = ?', (val['Cuisine'],))
+                cur.execute('INSERT INTO Cuisines (cuisine) VALUES (?)', (val['Cuisine'],))
+                cur.execute('SELECT id FROM Cuisines WHERE cuisine = ?', (val['Cuisine'],))
                 cuisine_id = cur.fetchone()[0]
                 
                 # Update Restaurants table
@@ -169,9 +169,10 @@ class RestaurantsDB() :
                 
                 
 if __name__ == '__main__' :
-
+ 
+    # Scrape data
     restaurants = Restaurants()
-
+    
     # Check that web scraping works
     for k, v in restaurants.data.items() :
         print('Name:', k)
@@ -179,9 +180,10 @@ if __name__ == '__main__' :
             print(k2 + ': ' +  v2)
         print()
     
-    # Check that writing to json works
+    # Write out JSON file
     restaurants.write_data()  
     
+    # Check that writing to json works
     with open('rest_data.json', 'r') as fh :
         my_data = json.load(fh)     
         i = 1
@@ -192,6 +194,7 @@ if __name__ == '__main__' :
                 print(k2 + ': ' + v2)
             print()
             i += 1
-
-    # Check that database creation works
+            
+    # Create database. Check for database consists in running lab3front.
     my_db = RestaurantsDB().db
+    
