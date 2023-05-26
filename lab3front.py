@@ -73,12 +73,8 @@ class DialogWindow(tk.Toplevel) :
         self.grab_set()
         self.focus_set()
         self.transient(master)
-        if elems : 
-            self.elems = elems
-        else :
-            self.elems = []
         self.choice = None
-        self.protocol('WM_DELETE_WINDOW', self.no_val)
+        self.protocol('WM_DELETE_WINDOW', self.destroy) # is this line needed?
         tk.Label(self, text = f'Click on a {desired} to select',  font = ('Helvetica', 16), padx = 10, pady = 10).grid()
         frame = tk.Frame(self)
         sb = tk.Scrollbar(frame, orient = 'vertical')
@@ -87,9 +83,11 @@ class DialogWindow(tk.Toplevel) :
         lb.grid(row = 0, column = 0)
         sb.grid(row = 0, column = 1, sticky = 'NS')
         frame.grid(row = 1, column = 0, padx = 10, pady = 10)
-        if self.elems: 
+        if elems : 
+            self.elems = elems
             lb.config(selectmode = 'multiple')
         else: 
+            self.elems = []
             master.cur.execute(f'SELECT {desired} FROM {datab}') 
             for elem in master.cur.fetchall() :
                 self.elems.append(elem[0])
@@ -98,24 +96,14 @@ class DialogWindow(tk.Toplevel) :
         tk.Button(self, text = 'Click to select', command = lambda : self.setChoiceAndClose(lb.curselection())).grid(padx = 5, pady = 10)
         
     def setChoiceAndClose(self, indices) :
-        chosen = []
+        self.choice = []
         for ind in indices :
-            chosen.append(self.elems[ind])
-        self.choice = chosen
+            self.choice.append(self.elems[ind])
         self.destroy()
         
     @property
-    def chose(self):
+    def chosen(self):
         return self.choice
-    
-    def no_val(self) :
-        '''
-        If user closes dialog window without making a selection:
-        - Set user choice to None
-        - Close dialog window
-        '''
-        self.choice = None
-        self.destroy()
         
 
 class MainWindow(tk.Tk) :
@@ -137,9 +125,8 @@ class MainWindow(tk.Tk) :
         # But that creates a database, opens a window, then fails when user
         # clicks on a button. That is bad UX
         # Better UX to be non pythonic and use if clause
-        #TODO: Figure out pythonic way with good UX, e.g., using uri?
-        okay = exists(MainWindow.DEFAULT) 
-        if not okay :
+        # TODO: Figure out pythonic way with good UX, e.g., using uri?
+        if not exists(MainWindow.DEFAULT)  :
             tkmb.showerror(f'Cannot open {MainWindow.DEFAULT}', parent = self)
             raise SystemExit
 
@@ -165,7 +152,7 @@ class MainWindow(tk.Tk) :
         datab, field = ('Cities', 'loc') if desired == 'city' else ('Cuisines', 'kind')
         dialog = DialogWindow(self, desired, datab)
         self.wait_window(dialog)
-        choice = dialog.chose
+        choice = dialog.chosen
         if choice:  
             rest_list = []
             self.curr.execute(f'''SELECT name FROM Restaurants JOIN {datab} 
@@ -189,7 +176,7 @@ class MainWindow(tk.Tk) :
         '''
         dialog = DialogWindow(self, desired, datab, rest_list)
         self.wait_window(dialog)
-        rest_list = dialog.chose
+        rest_list = dialog.chosen
         if rest_list :
             self.displayRestCard(rest_list)
     
@@ -224,7 +211,7 @@ class MainWindow(tk.Tk) :
         - If user confirms, close database and quit gracefully
         - If user cancels, do nothing
         '''        
-        close = tkmb.askokcancel('Confirm close', 'Close all windows and quit?', parent=self)
+        close = tkmb.askokcancel('Confirm close', 'Close all windows and quit?', parent = self)
         if close: 
             self.conn.close()
             self.destroy()

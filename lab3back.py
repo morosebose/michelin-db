@@ -151,7 +151,7 @@ class RestaurantsDB() :
                 cur.execute('SELECT id FROM Costs WHERE cost = ?', (val['Price'],))
                 costs_id = cur.fetchone()[0]
 
-                # Update Cuisine table
+                # Update Cuisines table
                 cur.execute('INSERT INTO Cuisines (cuisine) VALUES (?)', (val['Cuisine'],))
                 cur.execute('SELECT id FROM Cuisines WHERE cuisine = ?', (val['Cuisine'],))
                 cuisine_id = cur.fetchone()[0]
