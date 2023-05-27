@@ -74,7 +74,6 @@ class DialogWindow(tk.Toplevel) :
         self.focus_set()
         self.transient(master)
         self.choice = None
-        self.protocol('WM_DELETE_WINDOW', self.destroy) # is this line needed?
         tk.Label(self, text = f'Click on a {desired} to select',  font = ('Helvetica', 16), padx = 10, pady = 10).grid()
         frame = tk.Frame(self)
         sb = tk.Scrollbar(frame, orient = 'vertical')
