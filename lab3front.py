@@ -44,10 +44,7 @@ class DisplayWindow(tk.Toplevel) :
                 lab.config(fg = 'blue')
             lab.grid()
         frame.grid(padx = 20, pady = 20)
-        tk.Button(self, text = 'Restaurant Website', command = lambda : self.opensite(rest_tup[-1])).grid(padx = 5, pady = 10)
-    
-    def opensite(self, url) :
-        webbrowser.open(url)
+        tk.Button(self, text = 'Restaurant Website', command = lambda : webbrowser.open(rest_tup[-1])).grid(padx = 5, pady = 10)
   
 
 class DialogWindow(tk.Toplevel) :
@@ -156,8 +153,8 @@ class MainWindow(tk.Tk) :
             rest_list = []
             self.curr.execute(f'''SELECT name FROM Restaurants JOIN {datab} 
                               ON Restaurants.{field} = {datab}.id
-                              AND {datab}.{desired} = '{choice[0]}'
-                              ''')
+                              AND {datab}.{desired} = ?
+                              ''', (choice[0],))
             for record in self.curr.fetchall() :
                 rest_list.append(record[0])
             self.getRestaurantChoice('name', 'Restaurants', rest_list)
@@ -188,16 +185,14 @@ class MainWindow(tk.Tk) :
         @return None
         '''
         for rest in rest_list:
-            # Use double quotes around variable because 
-            # some restaurant names have apostrophe
-            self.curr.execute(f'''SELECT Restaurants.name, Restaurants.addr, 
+            self.curr.execute('''SELECT Restaurants.name, Restaurants.addr, 
                         Cuisines.cuisine, Costs.cost,
                         Restaurants.url
                         FROM Restaurants JOIN Cuisines JOIN Costs
                         ON Cuisines.id = Restaurants.kind 
                         AND Costs.id = Restaurants.cost
-                        AND Restaurants.name = "{rest}"
-                        ''')
+                        AND Restaurants.name = ?
+                        ''', (rest,))
             DisplayWindow(self, self.curr.fetchone())
     
     @property
