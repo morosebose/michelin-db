@@ -36,9 +36,7 @@ class DisplayWindow(tk.Toplevel) :
         self.transient(master)
         frame = tk.Frame(self)
         for i in range (4):
-            # must use double quotes as some restaurant names have apostrophe
-            # TODO: Remove zip and country from address before displaying
-            lab = tk.Label(frame, text = f"{rest_tup[i]}", font =('Helvetica', 14))
+            lab = tk.Label(frame, text = f'{rest_tup[i]}', font =('Helvetica', 14))
             # Displaying four labels, labels 0 and 3 in blue, middle two in default color
             if i % 3 == 0 :
                 lab.config(fg = 'blue')
@@ -175,7 +173,7 @@ class MainWindow(tk.Tk) :
         if chosen_list :
             self.displayRestCard(chosen_list)
     
-    def displayRestCard(self, chosen_list) :
+    def displayRestCard(self, rest_list) :
         '''
         Display all the details of each restaurant chosen by the user
         
@@ -183,7 +181,7 @@ class MainWindow(tk.Tk) :
         
         @return None
         '''
-        for rest in chosen_list:
+        for rest in rest_list:
             self.curr.execute('''SELECT Restaurants.name, Restaurants.addr, 
                         Cuisines.cuisine, Costs.cost,
                         Restaurants.url

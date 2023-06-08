@@ -67,12 +67,12 @@ class Restaurants():
         Helper function to extract the address of a restaurant from its url
         
         @param url website of restaurant
-        @return address of restaurant
+        @return address of restaurant without zip and country
         '''
         page = requests.get(url)
         soup = bs(page.content, 'lxml')
         address = soup.find('li', class_ = 'restaurant-details__heading--address' )
-        return address.text
+        return address.text[:-12]
   
     @property
     def data(self) :
