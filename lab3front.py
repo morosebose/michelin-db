@@ -141,7 +141,6 @@ class MainWindow(tk.Tk) :
         Use user's choice to generate list of appropriate restaurants
         Pass list on to method to get user's choice of restaurants
         '''
-        # TODO: Sort lists to be displayed alphabetically
         datab, field = ('Cities', 'loc') if desired == 'city' else ('Cuisines', 'kind')
         dialog = DialogWindow(self, desired, datab)
         self.wait_window(dialog)
