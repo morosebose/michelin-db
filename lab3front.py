@@ -70,7 +70,7 @@ class DialogWindow(tk.Toplevel) :
         self.grab_set()
         self.focus_set()
         self.transient(master)
-        self.choice = None
+        self.choice = []
         tk.Label(self, text = f'Click on a {desired} to select',  font = ('Helvetica', 16), padx = 10, pady = 10).grid()
         frame = tk.Frame(self)
         sb = tk.Scrollbar(frame, orient = 'vertical')
@@ -84,7 +84,7 @@ class DialogWindow(tk.Toplevel) :
             lb.config(selectmode = 'multiple')
         else: 
             self.elems = []
-            master.cur.execute(f'SELECT {desired} FROM {datab}') 
+            master.cur.execute(f'SELECT {desired} FROM {datab} ORDER BY {desired}') 
             for elem in master.cur.fetchall() :
                 self.elems.append(elem[0])
         for elem in self.elems :
@@ -92,7 +92,6 @@ class DialogWindow(tk.Toplevel) :
         tk.Button(self, text = 'Click to select', command = lambda : self.setChoiceAndClose(lb.curselection())).grid(padx = 5, pady = 10)
         
     def setChoiceAndClose(self, indices) :
-        self.choice = []
         for ind in indices :
             self.choice.append(self.elems[ind])
         self.destroy()
@@ -131,12 +130,12 @@ class MainWindow(tk.Tk) :
         self.protocol('WM_DELETE_WINDOW', self.closeout)
         self.title('Restaurants')
         
-        fr = tk.Frame(self, padx = 20, pady = 20)
-        fr.grid()
+        frame = tk.Frame(self, padx = 20, pady = 20)
+        frame.grid()
         
-        tk.Label(fr, text = 'Local Michelin Guide Restaurants', fg = 'blue', font =('Helvetica', 20, 'bold'), padx = 20, pady = 20 ).grid(row = 0, column = 1, columnspan = 3)
-        tk.Button(fr, text = 'Search by City', font = ('Helvetica', 20, 'bold'), bg = 'gray', fg = 'black', command = lambda : self.getInitialChoice('city')).grid(row = 3, column = 0, columnspan = 2)
-        tk.Button(fr, text = 'Search by Cuisine', font = ('Helvetica', 20, 'bold'), bg = 'gray', fg = 'black', command = lambda : self.getInitialChoice('cuisine')).grid(row = 3, column = 2, columnspan = 2)
+        tk.Label(frame, text = 'Local Michelin Guide Restaurants', fg = 'blue', font =('Helvetica', 20, 'bold'), padx = 20, pady = 20 ).grid(row = 0, column = 1, columnspan = 3)
+        tk.Button(frame, text = 'Search by City', font = ('Helvetica', 20, 'bold'), bg = 'gray', fg = 'black', command = lambda : self.getInitialChoice('city')).grid(row = 3, column = 0, columnspan = 2)
+        tk.Button(frame, text = 'Search by Cuisine', font = ('Helvetica', 20, 'bold'), bg = 'gray', fg = 'black', command = lambda : self.getInitialChoice('cuisine')).grid(row = 3, column = 2, columnspan = 2)
 
     def getInitialChoice(self, desired) :
         '''
@@ -172,11 +171,11 @@ class MainWindow(tk.Tk) :
         '''
         dialog = DialogWindow(self, desired, datab, rest_list)
         self.wait_window(dialog)
-        rest_list = dialog.chosen
-        if rest_list :
-            self.displayRestCard(rest_list)
+        chosen_list = dialog.chosen
+        if chosen_list :
+            self.displayRestCard(chosen_list)
     
-    def displayRestCard(self, rest_list) :
+    def displayRestCard(self, chosen_list) :
         '''
         Display all the details of each restaurant chosen by the user
         
@@ -184,7 +183,7 @@ class MainWindow(tk.Tk) :
         
         @return None
         '''
-        for rest in rest_list:
+        for rest in chosen_list:
             self.curr.execute('''SELECT Restaurants.name, Restaurants.addr, 
                         Cuisines.cuisine, Costs.cost,
                         Restaurants.url
